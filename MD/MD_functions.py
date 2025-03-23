@@ -5,7 +5,7 @@ from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 
 def read_log(file_path):
-    with open(file_path, 'r') as file:
+    with open(file_path, 'r') as file: 
         lines = file.readlines()
     # Find the start of the table
     for i, line in enumerate(lines):
