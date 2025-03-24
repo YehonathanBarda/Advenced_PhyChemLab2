@@ -2,42 +2,84 @@ LAMMPS (4 Feb 2025)
 OMP_NUM_THREADS environment is not set. Defaulting to 1 thread. (src/comm.cpp:99)
   using 1 OpenMP thread(s) per MPI task
 Loaded 1 plugins from C:\Users\yaniv\AppData\Local\LAMMPS 64-bit 4Feb2025\plugins
-##############################################
-# LAMMPS script for a single particle
-###############################################
+####################################
+# Example LAMMPS input script      #
+# for a simple Lennard Jones fluid #
+####################################
+
+####################################
+#Vairables
+####################################
+
+variable	DENSITY equal 0.8
+
+####################################
+# Set up
+####################################
 
 units		lj
 atom_style	atomic
+dimension	3
+boundary	p p p
 
-region		box block -10 10 -10 10 -10 10
+lattice		fcc ${DENSITY}
+lattice		fcc 0.8
+Lattice spacing in x,y,z = 1.7099759 1.7099759 1.7099759
+region		box block 0 10 0 10 0 10
 create_box	1 box
-Created orthogonal box = (-10 -10 -10) to (10 10 10)
+Created orthogonal box = (0 0 0) to (17.099759 17.099759 17.099759)
   1 by 1 by 1 MPI processor grid
-create_atoms	1 single 0.0 0.0 0.0
-Created 1 atoms
-  using lattice units in orthogonal box = (-10 -10 -10) to (10 10 10)
-  create_atoms CPU = 0.000 seconds
+create_atoms	1 box
+Created 4000 atoms
+  using lattice units in orthogonal box = (0 0 0) to (17.099759 17.099759 17.099759)
+  create_atoms CPU = 0.002 seconds
+
+####################################
+# Define interparticle interactions
+####################################
+
+pair_style	lj/cut 3.5
+pair_modify	shift yes
+pair_coeff	1 1 1.0 1.0
 mass		1 1.0
 
-velocity	all set 0.1 0 0  sum yes
+####################################
+# Neighbour lists
+####################################
 
-dump dum1 all custom 1000 dump_output_harmonic.lammpstrj type x y z
+neighbor        0.3 bin
+neigh_modify    delay 10 every 1
 
-pair_style      none
+####################################
+# Define simulation parameters
+#   - We fix the temperature and
+#     linear and angular momenta
+#     of the system
+#   - We run with fixed number (n),
+#     volume (v), temperature (t)
+####################################
+# variable	RATE equal 0.5
 
-variable		k equal 0.02
-variable		fx atom -v_k*x
-variable		pe atom 0.5*v_k*x^2
-
-fix		1 all nve
-fix		2 all addforce v_fx 0.0 0.0 energy v_pe
-
-compute ke all ke
-compute pe all pe
-variable etotal equal c_ke + c_pe
-fix_modify 2 energy yes
+fix		1 all nvt temp 1.00 0.30 0.5
 
 
-thermo 10
-thermo_style  custom step c_ke c_pe  v_etotal
-log log_harmonic.lammps
+####################################
+# Final setup and output
+####################################
+variable Numstep equal 50000
+
+velocity	all create 1.0 199085 mom yes rot yes
+
+timestep	0.005
+####################################
+# Dump cooling
+####################################
+dump            1 all xyz 100 Cooling_dump_density_${DENSITY}_NumStep_${Numstep}.xyz
+dump            1 all xyz 100 Cooling_dump_density_0.8_NumStep_${Numstep}.xyz
+dump            1 all xyz 100 Cooling_dump_density_0.8_NumStep_50000.xyz
+
+thermo_style	custom step temp etotal pe ke press vol density
+thermo		100
+log log_LJ_Cooling_density_${DENSITY}_NumStep_${Numstep}.lammps
+log log_LJ_Cooling_density_0.8_NumStep_${Numstep}.lammps
+log log_LJ_Cooling_density_0.8_NumStep_50000.lammps
