@@ -7,6 +7,6 @@ dt = find_dt(data)
 
 particles_dict = flip_particles_and_frmae(data) 
 particles_dict = filter_particles(particles_dict, 500, pixel_to_um(60))
-# plot_particles_trjectory(particles_dict)
+plot_particles_trjectory(particles_dict)
 # plot_trajectory_lengths_histogram(particles_dict)
-print(particles_dict)
+# print(particles_dict)
