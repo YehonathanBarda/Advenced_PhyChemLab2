@@ -58,9 +58,11 @@ neigh_modify    delay 10 every 1
 #   - We run with fixed number (n),
 #     volume (v), temperature (t)
 ####################################
-# variable	RATE equal 0.5
+variable	PRESSURE equal 100
 
-fix		1 all nvt temp 1.00 0.30 0.5
+fix		1 all npt temp 1.00 0.30 0.5 iso ${PRESSURE} ${PRESSURE} 0.5
+fix		1 all npt temp 1.00 0.30 0.5 iso 100 ${PRESSURE} 0.5
+fix		1 all npt temp 1.00 0.30 0.5 iso 100 100 0.5
 
 
 ####################################
@@ -74,12 +76,12 @@ timestep	0.005
 ####################################
 # Dump cooling
 ####################################
-dump            1 all xyz 100 Cooling_dump_density_${DENSITY}_NumStep_${Numstep}.xyz
-dump            1 all xyz 100 Cooling_dump_density_0.8_NumStep_${Numstep}.xyz
-dump            1 all xyz 100 Cooling_dump_density_0.8_NumStep_50000.xyz
+dump            1 all xyz 100 Cooling_dump_pressure_${PRESSURE}_NumStep_${Numstep}.xyz
+dump            1 all xyz 100 Cooling_dump_pressure_100_NumStep_${Numstep}.xyz
+dump            1 all xyz 100 Cooling_dump_pressure_100_NumStep_50000.xyz
 
 thermo_style	custom step temp etotal pe ke press vol density
 thermo		100
-log log_LJ_Cooling_density_${DENSITY}_NumStep_${Numstep}.lammps
-log log_LJ_Cooling_density_0.8_NumStep_${Numstep}.lammps
-log log_LJ_Cooling_density_0.8_NumStep_50000.lammps
+log log_LJ_Cooling_pressure_${PRESSURE}_NumStep_${Numstep}.lammps
+log log_LJ_Cooling_pressure_100_NumStep_${Numstep}.lammps
+log log_LJ_Cooling_pressure_100_NumStep_50000.lammps

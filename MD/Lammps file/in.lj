@@ -55,7 +55,7 @@ fix		1 all nvt temp 1.00 0.30 0.5
 ####################################
 # Final setup and output
 ####################################
-variable Numstep equal 50000
+variable Numstep equal 5000
 
 velocity	all create 1.0 199085 mom yes rot yes
 
