@@ -1,0 +1,71 @@
+####################################
+# Example LAMMPS input script      #
+# for a simple Lennard Jones fluid #
+####################################
+
+####################################
+#Vairables
+####################################
+
+variable	DENSITY equal 0.01
+
+####################################
+# Set up
+####################################
+
+units		lj
+atom_style	atomic
+dimension	3
+boundary	p p p
+
+lattice		fcc ${DENSITY}
+region		box block 0 10 0 10 0 10
+create_box	1 box
+create_atoms	1 box
+
+####################################
+# Define interparticle interactions
+####################################
+
+pair_style	lj/cut 3.5
+pair_modify	shift yes
+pair_coeff	1 1 1.0 1.0
+mass		1 1.0
+
+####################################
+# Neighbour lists
+####################################
+
+neighbor        0.3 bin
+neigh_modify    delay 10 every 1
+
+####################################
+# Define simulation parameters
+#   - We fix the temperature and 
+#     linear and angular momenta
+#     of the system 
+#   - We run with fixed number (n),
+#     volume (v), temperature (t)
+####################################
+
+fix		1 all nvt temp 1.00 1.00 5.0
+
+
+####################################
+# Final setup and output
+####################################
+
+velocity	all create 1.0 199085 mom yes rot yes
+
+timestep	0.005
+
+dump            1 all xyz 1000 dump_density_${DENSITY}.xyz
+
+thermo_style	custom step temp etotal pe ke press vol density
+thermo		500
+
+compute		RDF all rdf 150 cutoff 3.5
+fix		RDF_OUTPUT all ave/time 50 950 50000 c_RDF[*] file rdf_lj_${DENSITY}.out mode vector
+
+run		50000
+unfix           1
