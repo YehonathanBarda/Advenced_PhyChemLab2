@@ -196,6 +196,20 @@ def Calculate_Diffusion_coefficient_from_VACF(vacf, timesteps):
     D *= 1e-5 # in m^2/s
     return D
 
+def Calculate_RG(file_path):
+    # Load the Rg values from the file (assuming they are in the second column)
+    try:
+        rg_data = np.loadtxt(file_path, usecols=1)  # Read only the Rg values (second column)
+    except Exception as e:
+        print(f"Error reading the file: {e}")
+        return None, None
+    
+    # Calculate the average and standard deviation of Rg
+    avg_rg = np.mean(rg_data)
+    err_rg = np.std(rg_data) / np.sqrt(len(rg_data))  # Standard error of the mean
+
+    return avg_rg, err_rg
+
 if __name__ == "__main__":
     log_file = r'C:\Users\yaniv\Yehonathan TAU\Advenced_PhyChemLab\MD\log_harmonic.lammps'
     harm_erg_df = read_log(log_file)
