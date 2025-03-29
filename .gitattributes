@@ -1,3 +1,0 @@
-Lammps[[:space:]]file/* filter=lfs diff=lfs merge=lfs -text
-MD/Lammps[[:space:]]file/positions_water_dump10.lammpstrj filter=lfs diff=lfs merge=lfs -text
-MD/Lammps[[:space:]]file/* filter=lfs diff=lfs merge=lfs -text

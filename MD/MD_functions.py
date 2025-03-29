@@ -198,6 +198,5 @@ def Calculate_Diffusion_coefficient_from_VACF(vacf, timesteps):
 
 if __name__ == "__main__":
     log_file = r'C:\Users\yaniv\Yehonathan TAU\Advenced_PhyChemLab\MD\log_harmonic.lammps'
-
     harm_erg_df = read_log(log_file)
     print(harm_erg_df)
