@@ -7,7 +7,7 @@
 #Vairables
 ####################################
 
-variable	DENSITY equal 0.8
+variable	DENSITY equal 0.01
 
 ####################################
 # Set up
@@ -47,14 +47,15 @@ neigh_modify    delay 10 every 1
 #   - We run with fixed number (n),
 #     volume (v), temperature (t)
 ####################################
-variable	RATE equal 0.5
+variable	PRESSURE equal 1
 
-fix		1 all nvt temp 1.00 0.30 ${RATE}
+fix		1 all npt temp 1.00 0.30 0.5 iso ${PRESSURE} ${PRESSURE} 0.5
 
 
 ####################################
 # Final setup and output
 ####################################
+variable Numstep equal 50000
 
 velocity	all create 1.0 199085 mom yes rot yes
 
@@ -62,36 +63,37 @@ timestep	0.005
 ####################################
 # Dump cooling
 ####################################
-dump            1 all xyz 1000 Cooling_dump_density_${DENSITY}_rate_${RATE}.xyz
+dump            1 all xyz 100 Cooling_dump_pressure_${PRESSURE}_NumStep_${Numstep}.xyz
 
 thermo_style	custom step temp etotal pe ke press vol density
-thermo		500
-log log_LJ_Cooling_density_${DENSITY}_rate_${RATE}.lammps
+thermo		1000 
+log log_LJ_Cooling_pressure_${PRESSURE}_NumStep_${Numstep}.lammps
 
 ####################################
 # Run cooling
 ####################################
 
-run 100000
+run ${Numstep}
 
 ###################################
 # Relaxation stage
 ###################################
-fix		2 all nvt temp 0.30 0.30 ${RATE}
+fix		2 all npt temp 0.30 0.30 0.5 iso ${PRESSURE} ${PRESSURE} 0.5
+
 
 ####################################
 # Dump relaxation stage
 ####################################
-
-dump            2 all xyz 1000 relaxation_dump_density_${DENSITY}_rate_${RATE}.xyz
+undump		1
+dump            2 all xyz 100 relaxation_dump_pressure_${PRESSURE}_NumStep_${Numstep}.xyz
 
 thermo_style	custom step temp etotal pe ke press vol density
-thermo		500
-log log_LJ_relaxation_density_${DENSITY}_rate_${RATE}.lammps
+thermo		1000
+#log log_LJ_relaxation_pressure_${PRESSURE}_NumStep_${Numstep}.lammps
 unfix           1
 
 compute		RDF all rdf 150 cutoff 3.5
-fix		RDF_OUTPUT all ave/time 50 950 50000 c_RDF[*] file rdf_lj_relaxation_${DENSITY}_rate_${RATE}.out mode vector
+fix		RDF_OUTPUT all ave/time 50 950 50000 c_RDF[*] file rdf_lj_relaxation_pressure_${PRESSURE}_NumStep_${Numstep}.out mode vector
 
 ####################################
 # Run relaxation stage
