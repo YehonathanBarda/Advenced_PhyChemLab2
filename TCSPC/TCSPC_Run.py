@@ -2,7 +2,7 @@ from TCSPC_Functions import *
 import os
 
 # Absorption
-Abs_folder = r'Data\day1 data\Absorption'
+Abs_folder = r'TCSPC\Data\day1 data\Absorption'
 file_pathAbsF = os.path.join(Abs_folder, 'abs_flouresciene_4.3_micM.xlsx')
 file_pathAbsR = os.path.join(Abs_folder, 'abs_rose_b_6micM.xlsx')
 file_pathAbsF_R = os.path.join(Abs_folder, 'abs_roseb_flourescien_together.xlsx')
@@ -12,7 +12,7 @@ data_AbsF_R = get_data(file_pathAbsF_R)
 # plot_together(data_AbsF, data_AbsR, data_AbsF_R,Type='Abs')
 
 # Emission
-Ems_folder = r'Data\day1 data\Emission'
+Ems_folder = r'TCSPC\Data\day1 data\Emission'
 file_pathEmsF = os.path.join(Ems_folder, 'Flourescein Emission at 390 nm 4.3 um P.csv')
 file_pathEmsR = os.path.join(Ems_folder, 'RoseB Emission at 390 nm 6 um P.csv')
 file_pathEmsF_R = os.path.join(Ems_folder, 'RoseB 6 um and Flour 4.3 Emission at 390 nm P.csv')
@@ -22,7 +22,7 @@ data_EmsF_R = get_data(file_pathEmsF_R)
 # plot_together(data_EmsF, data_EmsR, data_EmsF_R,Type='Ems')
 
 # Excitation
-Ext_folder = r'Data\day1 data\Exitation'
+Ext_folder = r'TCSPC\Data\day1 data\Exitation'
 file_pathExtF = os.path.join(Ext_folder, 'Flourescein Excitation at 600 nm  4.3 um P.csv')
 file_pathExtR = os.path.join(Ext_folder, 'RoseB Excitation at 600 nm 6 um P.csv')
 file_pathExtF_R = os.path.join(Ext_folder, 'RoseB 6 um and Flour 4.3 Excitaion at 600 nm P.csv')

@@ -115,11 +115,11 @@ def calculate_overlap_integral(Emission, abs_coeff, limits, plot=False):
 def Normalize_by_area(data):
     col = data.columns[1]
     # plt.plot(data['Wavelength'], data[col], label='Original')
-    data[col] = data[col] / np.trapz(data[col], data['Wavelength'])
+    data[col] = data[col] / np.trapezoid(data[col], data['Wavelength'])
     # plt.plot(data['Wavelength'], data[col], label='Normalized')
     # plt.legend()
     # plt.show()
-    area = np.trapz(data[col], data['Wavelength'])
+    area = np.trapezoid(data[col], data['Wavelength'])
     print('Area under the curve is: {:.2f}'.format(area))
     return data
 
