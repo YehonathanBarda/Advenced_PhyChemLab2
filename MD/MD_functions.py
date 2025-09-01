@@ -5,7 +5,7 @@ from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 
 def read_log(file_path):
-    with open(file_path, 'r') as file:
+    with open(file_path, 'r') as file: 
         lines = file.readlines()
     # Find the start of the table
     for i, line in enumerate(lines):
@@ -118,8 +118,99 @@ def plot_rdf(file_path, title=r"RDF vs R/$\sigma$", Plot = True):
         plt.show()
     return R, RDF
 
+
+def compute_msd(oxygen_df, box_bounds):
+    """
+    Computes the Mean Squared Displacement (MSD) considering Periodic Boundary Conditions (PBCs).
+    
+    Parameters:
+    oxygen_df (DataFrame): Sorted DataFrame containing oxygen atom positions over time.
+    box_bounds (dict): Dictionary with 'xlo', 'xhi', 'ylo', 'yhi', 'zlo', 'zhi' defining the simulation box.
+    
+    Returns:
+    DataFrame: MSD values over time.
+    """
+    # Define box dimensions
+    box_size = np.array([box_bounds['xhi'] - box_bounds['xlo'], 
+                          box_bounds['yhi'] - box_bounds['ylo'], 
+                          box_bounds['zhi'] - box_bounds['zlo']])
+    
+    # Get initial positions
+    oxygen_initial = oxygen_df[oxygen_df['Timestep'] == 0].set_index('id')[['x', 'y', 'z']]
+
+    
+    # Compute displacements considering PBCs
+    diff_oxygen = oxygen_df[['Timestep', 'id', 'x', 'y', 'z']].copy()
+    
+    for coord, length in zip(['x', 'y', 'z'], box_size):
+        diff_oxygen[coord] -= diff_oxygen['id'].map(oxygen_initial[coord])
+        diff_oxygen[coord] = apply_pbc(diff_oxygen[coord], length)
+    
+    # Compute Mean Squared Displacement (MSD)
+    MSD = diff_oxygen.groupby('Timestep').agg({
+        'x': lambda x: (x**2).mean(), 
+        'y': lambda y: (y**2).mean(), 
+        'z': lambda z: (z**2).mean()
+    }).reset_index()
+    
+    MSD['MSD'] = MSD[['x', 'y', 'z']].sum(axis=1)
+    
+    return MSD
+
+# Function to apply PBC corrections
+def apply_pbc(displacement, box_length):
+    return displacement - box_length * np.round(displacement / box_length)
+
+# Linear fit function
+def linear_fit(x, a, b):
+    return a * x + b
+
+def compute_VACF(oxygen_df):
+    # Extract the initial velocity components at t=0
+    initial_vx = oxygen_df[oxygen_df["Timestep"] == 0]["vx"].values
+    initial_vy = oxygen_df[oxygen_df["Timestep"] == 0]["vy"].values
+    initial_vz = oxygen_df[oxygen_df["Timestep"] == 0]["vz"].values
+    
+    # Create a new DataFrame to store the velocity autocorrelation function for each timestep
+    vacf = []
+    
+    # Loop through each timestep from t=0 to the maximum timestep in the DataFrame
+    timesteps = sorted(oxygen_df["Timestep"].unique())
+    
+    for t in timesteps:
+        # Get the velocities at timestep t
+        vx_t = oxygen_df[oxygen_df["Timestep"] == t]["vx"].values
+        vy_t = oxygen_df[oxygen_df["Timestep"] == t]["vy"].values
+        vz_t = oxygen_df[oxygen_df["Timestep"] == t]["vz"].values
+        
+        # Average over all particles <v(0) * v(t)> 
+        vacf_t = np.mean(initial_vx * vx_t + initial_vy * vy_t + initial_vz * vz_t)
+        vacf.append(vacf_t)
+    
+    return vacf, timesteps
+
+def Calculate_Diffusion_coefficient_from_VACF(vacf, timesteps):
+    # time step is in 1 fs
+    # vacf is in (A/fs)^2
+    D = 1/3 * np.trapz(vacf, timesteps) # in A^2/fs
+    D *= 1e-5 # in m^2/s
+    return D
+
+def Calculate_RG(file_path):
+    # Load the Rg values from the file (assuming they are in the second column)
+    try:
+        rg_data = np.loadtxt(file_path, usecols=1)  # Read only the Rg values (second column)
+    except Exception as e:
+        print(f"Error reading the file: {e}")
+        return None, None
+    
+    # Calculate the average and standard deviation of Rg
+    avg_rg = np.mean(rg_data)
+    err_rg = np.std(rg_data) / np.sqrt(len(rg_data))  # Standard error of the mean
+
+    return avg_rg, err_rg
+
 if __name__ == "__main__":
     log_file = r'C:\Users\yaniv\Yehonathan TAU\Advenced_PhyChemLab\MD\log_harmonic.lammps'
-
     harm_erg_df = read_log(log_file)
     print(harm_erg_df)
