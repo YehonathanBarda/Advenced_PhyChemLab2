@@ -26,7 +26,7 @@ def normalize(data):
 def set_zero(data, col):
     return  data[col] - np.min(data[col])
 
-def plot_together(data_F,data_R,data_F_R, Type):
+def plot_together(data_F,data_R,data_F_R, Type, save = False):
     if Type == 'Abs':
         col = 'Abs'
         Title = 'Absorption'
@@ -53,9 +53,16 @@ def plot_together(data_F,data_R,data_F_R, Type):
     plt.ylabel(Title)
     plt.legend()
     plt.title(Title + ' Spectra', fontsize=16)
+    if type(save) == str:
+        graph_folder = os.path.join(os.getcwd(), 'TCSPC', 'graphs')
+        plt.savefig(save)
+    elif save:
+        graph_folder = os.path.join(os.getcwd(), 'TCSPC', 'graphs')
+        os.makedirs(graph_folder, exist_ok=True)
+        plt.savefig(os.path.join(graph_folder, Title + ' Spectra.png'))
     plt.show()
 
-def plot_Abs_and_Ems(data_AbsF, data_AbsR, data_EmsF, data_EmsR):
+def plot_Abs_and_Ems(data_AbsF, data_AbsR, data_EmsF, data_EmsR, save):
     plt.figure(figsize=(10, 6))
     data_AbsF_norm = Normalize_by_area(data_AbsF)
     data_AbsR_norm = Normalize_by_area(data_AbsR)
@@ -69,8 +76,16 @@ def plot_Abs_and_Ems(data_AbsF, data_AbsR, data_EmsF, data_EmsR):
     plt.xlabel('Wavelength')
 
     plt.legend()
-    plt.title('Absorption and Emission Spectra', fontsize=16)
+    Title = 'Absorption and Emission Spectra'
+    plt.title(Title, fontsize=16)
     plt.xlim(400,650)
+    if type(save) == str:
+        graph_folder = os.path.join(os.getcwd(), 'TCSPC', 'graphs')
+        plt.savefig(save)
+    elif save:
+        graph_folder = os.path.join(os.getcwd(), 'TCSPC', 'graphs')
+        os.makedirs(graph_folder, exist_ok=True)
+        plt.savefig(os.path.join(graph_folder, Title + '.png'))
     plt.show()
 
 def interpolate_data(x, y):

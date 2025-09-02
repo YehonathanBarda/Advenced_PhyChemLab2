@@ -9,7 +9,7 @@ file_pathAbsF_R = os.path.join(Abs_folder, 'abs_roseb_flourescien_together.xlsx'
 data_AbsF = get_data(file_pathAbsF)
 data_AbsR = get_data(file_pathAbsR)
 data_AbsF_R = get_data(file_pathAbsF_R)
-# plot_together(data_AbsF, data_AbsR, data_AbsF_R,Type='Abs')
+# plot_together(data_AbsF, data_AbsR, data_AbsF_R,Type='Abs', save=True)
 
 # Emission
 Ems_folder = r'TCSPC\Data\day1 data\Emission'
@@ -19,7 +19,7 @@ file_pathEmsF_R = os.path.join(Ems_folder, 'RoseB 6 um and Flour 4.3 Emission at
 data_EmsF = get_data(file_pathEmsF)
 data_EmsR = get_data(file_pathEmsR)
 data_EmsF_R = get_data(file_pathEmsF_R)
-# plot_together(data_EmsF, data_EmsR, data_EmsF_R,Type='Ems')
+# plot_together(data_EmsF, data_EmsR, data_EmsF_R,Type='Ems', save=True)
 
 # Excitation
 Ext_folder = r'TCSPC\Data\day1 data\Exitation'
@@ -29,10 +29,10 @@ file_pathExtF_R = os.path.join(Ext_folder, 'RoseB 6 um and Flour 4.3 Excitaion a
 data_ExtF = get_data(file_pathExtF)
 data_ExtR = get_data(file_pathExtR)
 data_ExtF_R = get_data(file_pathExtF_R)
-# plot_together(data_ExtF, data_ExtR, data_ExtF_R,Type='Ext')
+# plot_together(data_ExtF, data_ExtR, data_ExtF_R,Type='Ext', save=True)
 
 # Absorption and Emission
-# plot_Abs_and_Ems(data_AbsF, data_AbsR, data_EmsF, data_EmsR)
+# plot_Abs_and_Ems(data_AbsF, data_AbsR, data_EmsF, data_EmsR, save=True)
 
 # Overlap Integral
 ## Fluorescein
