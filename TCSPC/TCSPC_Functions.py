@@ -26,7 +26,7 @@ def normalize(data):
 def set_zero(data, col):
     return  data[col] - np.min(data[col])
 
-def plot_together(data_F,data_R,data_F_R, Type, Title_add = '', save = False, concentrations = [4.24, 6.0]):
+def plot_together(data_F,data_R,data_F_R, Type, Title_add = '', save = False, concentrations = [4.24, 6.0, r'$\mu M$']):
     if Type == 'Abs':
         col = 'Abs'
         Title = 'Absorption'
@@ -44,8 +44,8 @@ def plot_together(data_F,data_R,data_F_R, Type, Title_add = '', save = False, co
 
     sumed_spec = data_F_zero + data_R_zero
     plt.figure(figsize=(10, 6))
-    plt.plot(data_F['Wavelength'], data_F_zero, label=r'Fluorescein {} $\mu M$'.format(concentrations[0]))
-    plt.plot(data_R['Wavelength'], data_R_zero, label=r'Rose Bengal {} $\mu M$'.format(concentrations[1]))
+    plt.plot(data_F['Wavelength'], data_F_zero, label=r'Fluorescein {:.1f} '.format(concentrations[0]) + concentrations[2])
+    plt.plot(data_R['Wavelength'], data_R_zero, label=r'Rose Bengal {:.1f} '.format(concentrations[1]) + concentrations[2])
 
     plt.plot(data_F['Wavelength'], sumed_spec, label='Sumed Fluorescein + Rose Bengal')
     plt.plot(data_F_R['Wavelength'], data_F_R_zero, label='Fluorescein + Rose Bengal')
@@ -54,25 +54,23 @@ def plot_together(data_F,data_R,data_F_R, Type, Title_add = '', save = False, co
     plt.legend()
     plt.title(Title + ' Spectra' + Title_add, fontsize=16)
     if type(save) == str:
-        graph_folder = os.path.join(os.getcwd(), 'TCSPC', 'graphs')
-        plt.savefig(save)
+        plt.savefig(save) 
     elif save:
         graph_folder = os.path.join(os.getcwd(), 'TCSPC', 'graphs')
-        os.makedirs(graph_folder, exist_ok=True)
         plt.savefig(os.path.join(graph_folder, Title + ' Spectra'+ Title_add + '.png'))
     plt.show()
 
-def plot_Abs_and_Ems(data_AbsF, data_AbsR, data_EmsF, data_EmsR, save):
+def plot_Abs_and_Ems(data_AbsF, data_AbsR, data_EmsF, data_EmsR, save, concentrations = [4.24, 6.0, r'$\mu M$']):
     plt.figure(figsize=(10, 6))
     data_AbsF_norm = Normalize_by_area(data_AbsF)
     data_AbsR_norm = Normalize_by_area(data_AbsR)
     data_EmsF_norm = Normalize_by_area(data_EmsF)
     data_EmsR_norm = Normalize_by_area(data_EmsR)
 
-    plt.plot(data_AbsF_norm['Wavelength'], data_AbsF_norm['Abs'], '-C0', label=r'Absorption Fluorescein 4.24 $\mu M$')
-    plt.plot(data_AbsR_norm['Wavelength'], data_AbsR_norm['Abs'], '-C3', label=r'Absorption Rose Bengal 6.0 $\mu M$')
-    plt.plot(data_EmsF_norm['Wavelength'], data_EmsF_norm['S1c/R1'], '--C0', label=r'Emission Fluorescein 4.24 $\mu M$')
-    plt.plot(data_EmsR_norm['Wavelength'], data_EmsR_norm['S1c/R1'], '--C3', label=r'Emission Rose Bengal 6.0 $\mu M$')
+    plt.plot(data_AbsF_norm['Wavelength'], data_AbsF_norm['Abs'], '-C0', label=r'Absorption Fluorescein {:.1f} '.format(concentrations[0]) + concentrations[2])
+    plt.plot(data_AbsR_norm['Wavelength'], data_AbsR_norm['Abs'], '-C3', label=r'Absorption Rose Bengal {:.1f} '.format(concentrations[1]) + concentrations[2])
+    plt.plot(data_EmsF_norm['Wavelength'], data_EmsF_norm['S1c/R1'], '--C0', label=r'Emission Fluorescein {:.1f} '.format(concentrations[0]) + concentrations[2])
+    plt.plot(data_EmsR_norm['Wavelength'], data_EmsR_norm['S1c/R1'], '--C3', label=r'Emission Rose Bengal {:.1f} '.format(concentrations[1]) + concentrations[2])
     plt.xlabel('Wavelength [nm]')
 
     plt.legend()
