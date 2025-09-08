@@ -44,8 +44,8 @@ def plot_together(data_F,data_R,data_F_R, Type, Title_add = '', save = False, co
 
     sumed_spec = data_F_zero + data_R_zero
     plt.figure(figsize=(10, 6))
-    plt.plot(data_F['Wavelength'], data_F_zero, label=r'Fluorescein {:.1f} '.format(concentrations[0]) + concentrations[2])
-    plt.plot(data_R['Wavelength'], data_R_zero, label=r'Rose Bengal {:.1f} '.format(concentrations[1]) + concentrations[2])
+    plt.plot(data_F['Wavelength'], data_F_zero, label=r'Fluorescein {:.2f} '.format(concentrations[0]) + concentrations[2])
+    plt.plot(data_R['Wavelength'], data_R_zero, label=r'Rose Bengal {:.2f} '.format(concentrations[1]) + concentrations[2])
 
     plt.plot(data_F['Wavelength'], sumed_spec, label='Sumed Fluorescein + Rose Bengal')
     plt.plot(data_F_R['Wavelength'], data_F_R_zero, label='Fluorescein + Rose Bengal')
@@ -102,17 +102,15 @@ def calculate_overlap_integral(Emission, abs_coeff, limits, plot=False):
     Emission_interpolated = interpolate_data(Emission_norm['Wavelength'], Emission_norm['S1c/R1'])
     abs_coeff_interpolated = interpolate_data(abs_coeff['Wavelength'], abs_coeff['Abs'])
     integrad = lambda x: Emission_interpolated(x) * abs_coeff_interpolated(x) * (x) ** 4
-    # integral, error = quad(integrad, limits[0], limits[1])
+    integral, error = quad(integrad, limits[0], limits[1], limit=100) # In M^-1cm^-1nm^4, limit is the maximum number of subintervals
 
-    x = np.linspace(limits[0], limits[1], int(limits[1] - limits[0]))
-    y = integrad(x)
-    print(x)
-    plt.plot(x, y, label='Product')
-    dx = x[1] - x[0]
-    print(dx)
-    integral = np.sum(y) 
-    # print(y)
-    plt.show()
+    # x = np.linspace(limits[0], limits[1], int(limits[1] - limits[0]-1))
+    # y = integrad(x)
+    # print(x)
+    # plt.plot(x, y, label='Product')
+    # dx = x[1] - x[0]
+    # integral = np.sum(y) * dx
+    # error = N
     # if plot:
     #     x = np.linspace(limits[0], limits[1], 1000)
     #     # plt.plot(Emission_norm['Wavelength'], Emission_norm['S1c/R1'], label='Emission')
@@ -123,28 +121,53 @@ def calculate_overlap_integral(Emission, abs_coeff, limits, plot=False):
     #     plt.legend()
     #     plt.show()
 
-    return integral
+    return integral, error
 
 def Normalize_by_area(data):
-    col = data.columns[1]
+    data_copy = data.copy()
+    col = data_copy.columns[1]
     # plt.plot(data['Wavelength'], data[col], label='Original')
-    data[col] = data[col] / np.trapezoid(data[col], data['Wavelength'])
-    # plt.plot(data['Wavelength'], data[col], label='Normalized')
-    # plt.legend()
-    # plt.show()
-    area = np.trapezoid(data[col], data['Wavelength'])
-    print('Area under the curve is: {:.2f}'.format(area))
-    return data
+    data_copy[col] = data_copy[col] / np.trapezoid(data_copy[col], data_copy['Wavelength'])
+    # area = np.trapezoid(data[col], data['Wavelength'])
+    # print('Area under the curve is: {:.2f}'.format(area))
+    return data_copy
 
-def calc_R0(overlap_int, QY, n, K2 = 2/3):
-    return 0.2108 * (K2 * n ** -4 * QY * overlap_int) ** (1/6) * 0.1 # in nm
+def calc_R0(overlap_int: float, QY: float, n: float, K2: float = 2/3, delta_overlap: float = None, delta_QY: float = 0, delta_n: float = 0) -> float:
+    """
+    Calculate the Förster distance R0 in nm.
+    Parameters:
+    overlap_int : float
+        The overlap integral in M^-1 cm^-1 nm^4.
+        QY : float
+        The quantum yield of the donor (between 0 and 1).
+            for Fluorescein QY = 0.97
+            for Rose Bengal QY =  0.11
+        n : float
+        The refractive index of the medium. for ethanol n = 1.3617
+        K2 : float, optional
+        The orientation factor (default is 2/3 for random orientation).
+        Returns:
+        float
+        The Förster distance R0 in nm.
+    """
+    R0 = 0.2108 * (K2 * n ** -4 * QY * overlap_int) ** (1/6) * 0.1  # in nm
+    if delta_overlap is not None:
+        delta_R0 = R0 * np.sqrt(
+            (1/6 * delta_overlap / overlap_int) ** 2 +
+            (1/6 * delta_QY / QY) ** 2 +
+            (4/6 * delta_n / n) ** 2
+        )
+    else:
+        delta_R0 = None
+    return R0, delta_R0
 
 if __name__ == "__main__":
-    Abs_folder = r'TCSPC\Data\day1 data\Absorption'
-    file_pathF = os.path.join(Abs_folder, 'abs_flouresciene_4.3_micM.xlsx')
-    file_pathR = os.path.join(Abs_folder, 'abs_rose_b_6micM.xlsx')
-    file_pathF_R = os.path.join(Abs_folder, 'abs_roseb_flourescien_together.xlsx')
-    # dataF = get_data(file_pathF)
-    # dataR = get_data(file_pathR)
-    # dataF_R = get_data(file_pathF_R)
-    # plot_together(dataF,dataR,dataF_R, Type='Abs')
+    function =  lambda x: x**2
+    x = np.linspace(0,10,100)
+    integral1 = quad(function, 0, 10)
+    integral2 = np.trapezoid(function(x), x)
+    integral3 = np.sum(function(x)) * (x[1]-x[0])
+    print(integral1)
+    print(integral2)
+    print(integral3)
+    print('Real value is 333.33')

@@ -17,7 +17,7 @@ data_AbsF_R = get_data(file_pathAbsF_R)
 concentration_F = calc_concentration(data_AbsF, 92300, 1) * 1E6 # in uM, Absorption coefficient of fluorescein is 92,300 M-1cm-1 and l = 1 cm
 concentration_R = calc_concentration(data_AbsR, 90400, 1) * 1E6 # in uM, Absorption coefficient of Rose Bengal is 90,400 M-1cm-1 and l = 1 cm
 day1_concentrations = [concentration_F, concentration_R, r'$\mu M$']
-plot_together(data_AbsF, data_AbsR, data_AbsF_R,Type='Abs', Title_add=' 1 cm cuvette', save=True, concentrations=day1_concentrations)
+# plot_together(data_AbsF, data_AbsR, data_AbsF_R,Type='Abs', Title_add=' 1 cm cuvette', save=True, concentrations=day1_concentrations)
 
 # Emission
 Ems_folder = r'TCSPC\Data\day1 data\Emission'
@@ -27,7 +27,7 @@ file_pathEmsF_R = os.path.join(Ems_folder, 'RoseB 6 um and Flour 4.3 Emission at
 data_EmsF = get_data(file_pathEmsF)
 data_EmsR = get_data(file_pathEmsR)
 data_EmsF_R = get_data(file_pathEmsF_R)
-plot_together(data_EmsF, data_EmsR, data_EmsF_R,Type='Ems', Title_add=' 1 cm cuvette', save=True, concentrations=day1_concentrations)
+# plot_together(data_EmsF, data_EmsR, data_EmsF_R,Type='Ems', Title_add=' 1 cm cuvette', save=True, concentrations=day1_concentrations)
 
 # Excitation
 Ext_folder = r'TCSPC\Data\day1 data\Excitation'
@@ -37,10 +37,10 @@ file_pathExtF_R = os.path.join(Ext_folder, 'RoseB 6 um and Flour 4.3 Excitation 
 data_ExtF = get_data(file_pathExtF)
 data_ExtR = get_data(file_pathExtR)
 data_ExtF_R = get_data(file_pathExtF_R)
-plot_together(data_ExtF, data_ExtR, data_ExtF_R,Type='Ext', Title_add=' 1 cm cuvette', save=True, concentrations=day1_concentrations)
+# plot_together(data_ExtF, data_ExtR, data_ExtF_R,Type='Ext', Title_add=' 1 cm cuvette', save=True, concentrations=day1_concentrations)
 
 # Absorption and Emissions
-plot_Abs_and_Ems(data_AbsF, data_AbsR, data_EmsF, data_EmsR, save=True, concentrations=day1_concentrations)
+# plot_Abs_and_Ems(data_AbsF, data_AbsR, data_EmsF, data_EmsR, save=True, concentrations=day1_concentrations)
 
 '''Inner filter effect was detected, we will use smaller cuvette for the rest of the experiments'''
 
@@ -59,7 +59,7 @@ file_pathEmsF_R = os.path.join(Ems_folder, 'roseb_fluor_emission390nm_1mm.csv')
 data_EmsF = get_data(file_pathEmsF)
 data_EmsR = get_data(file_pathEmsR)
 data_EmsF_R = get_data(file_pathEmsF_R)
-plot_together(data_EmsF, data_EmsR, data_EmsF_R,Type='Ems', Title_add=' 1 mm cuvette', save=True, concentrations=day1_concentrations)
+# plot_together(data_EmsF, data_EmsR, data_EmsF_R,Type='Ems', Title_add=' 1 mm cuvette', save=True, concentrations=day1_concentrations)
 
 '''Inner filter effect was not detected with 1 mm cuvette, but this cuvette broke so we improvised an 500 um cuvette'''
 
@@ -67,19 +67,34 @@ plot_together(data_EmsF, data_EmsR, data_EmsF_R,Type='Ems', Title_add=' 1 mm cuv
 '''
 Overlap Integral
 '''
-# # Fluorescein
-# Fluoresceib_concentration = calc_concentration(data_AbsF, 92300, 1) # in M, extinction coefficient of fluorescein is 92,300 M-1cm-1 and l = 1 cm
-# print('Fluorescein concentration is: {:.2f} uM'.format(Fluoresceib_concentration * 1E6))
-# F_Abs_coeff = calc_abs_coeff(data_AbsF,Fluoresceib_concentration, 1)
-# plt.plot(F_Abs_coeff['Wavelength'], F_Abs_coeff['Abs'], label=r'Abs Coeff Fluorescein 4.24 $\mu M$')
-# plt.plot(data_EmsF['Wavelength'],normalize(data_EmsF['S1c/R1']), label=r'Normalized Emission Fluorescein 4.24 $\mu M$')
-# plt.vlines([490, 520], 0, max(F_Abs_coeff['Abs']), colors='r', linestyles='dashed')
-# plt.legend()
-# plt.xlabel('Wavelength')
-# plt.show()
+# Fluorescein - Fluorescein
+print('Fluorescein concentration is: {:.2f} uM'.format(concentration_F))
+F_Abs_coeff = calc_abs_coeff(data_AbsF,concentration_F * 1E-6, 1) # in M^-1cm-1
+plt.plot(F_Abs_coeff['Wavelength'], F_Abs_coeff['Abs'], label=r'Abs Coeff Fluorescein 4.24 $\mu M$')
+plt.plot(data_EmsF['Wavelength'],normalize(data_EmsF['S1c/R1']), label=r'Normalized Emission Fluorescein 4.24 $\mu M$')
+plt.vlines([490, 600], 0, max(F_Abs_coeff['Abs']), colors='r', linestyles='dashed')
+plt.legend()
+plt.xlabel('Wavelength')
+plt.show()
 
-# F_FoverlapInt = calculate_overlap_integral(data_EmsF, F_Abs_coeff, [480, 540], plot=True)
-# R0_F_F = calc_R0(F_FoverlapInt, 0.97, 1.3617)
-# distance_between_molecules = 1/(Fluoresceib_concentration * Avogadro) ** (1/3) * 1E8 # in nm
-# print('J(F-F) = {:.2e} M^-1cm^-1nm^4    R0 = {:.2f} nm'.format(F_FoverlapInt * 1E6, R0_F_F))
-# print('Distance between molecules is: {:.2f} nm'.format(distance_between_molecules))
+F_FoverlapInt, F_FoverlapIntErr = calculate_overlap_integral(data_EmsF, F_Abs_coeff, [480, 540], plot=True) # In M^-1cm^-1nm^4
+R0_F_F, deltaR0_F_F = calc_R0(F_FoverlapInt, 0.97, 1.3617, delta_overlap=F_FoverlapIntErr, delta_n=0.0001)
+distance_between_molecules = 1/(concentration_F * 1E-6 * Avogadro) ** (1/3) * 1E8 # in nm, Concentration is in uM
+print('J(F-F) = {:.2e} ± {:.2e} M^-1cm^-1nm^4    R0 = {:.2f} nm'.format(F_FoverlapInt, F_FoverlapIntErr, R0_F_F))
+print('Distance between molecules (F -> F) is: {:.2f} nm'.format(distance_between_molecules))
+
+# Fosecein - Rose Bengal
+print('Rose Bengal concentration is: {:.2f} uM'.format(concentration_R))
+R_Abs_coeff = calc_abs_coeff(data_AbsR,concentration_R * 1E-6, 1)
+plt.plot(R_Abs_coeff['Wavelength'], R_Abs_coeff['Abs'], label=r'Abs Coeff Rose Bengal 6 $\mu M$')
+plt.plot(data_EmsF['Wavelength'],normalize(data_EmsF['S1c/R1']), label=r'Normalized Emission Fluorescein 4.24 $\mu M$')
+plt.vlines([460, 600], 0, max(R_Abs_coeff['Abs']), colors='r', linestyles='dashed')
+plt.legend()
+plt.xlabel('Wavelength')
+plt.show()
+
+F_RoverlapInt, F_RoverlapIntErr = calculate_overlap_integral(data_EmsF, R_Abs_coeff, [480, 580], plot=True) # In M^-1cm^-1nm^4
+R0_F_R, deltaR0_F_F = calc_R0(F_RoverlapInt, 0.97, 1.3617)
+print('J(F-R) = {:.2e} ± {:.2e} M^-1cm^-1nm^4    R0 = {:.2f} nm'.format(F_RoverlapInt, F_RoverlapIntErr, R0_F_R))
+distance_between_molecules = 1/(concentration_R * 1E-6 * Avogadro) ** (1/3) * 1E8 # in nm, Concentration is in uM
+print('Distance between molecules (F -> R) is: {:.2f} nm'.format(distance_between_molecules))
